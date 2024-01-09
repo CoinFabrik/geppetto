@@ -36,7 +36,11 @@ class SlackHandler:
 
         # Initialize instances for handling messages and mentions
         self.slack_methods = SlackMethods(
-            self.app, self.client, allowed_users, bot_default_responses, self.openai_scripts
+            self.app,
+            self.client,
+            allowed_users,
+            bot_default_responses,
+            self.openai_scripts,
         )
 
         # Direct Message Event
@@ -52,7 +56,12 @@ class SlackHandler:
 
 class SlackMethods:
     def __init__(
-        self, app: App, client: WebClient, allowed_users, bot_default_responses, openai_scripts: OpenAIHandler
+        self,
+        app: App,
+        client: WebClient,
+        allowed_users,
+        bot_default_responses,
+        openai_scripts: OpenAIHandler,
     ):
         self.app = app
         self.client = client
@@ -68,6 +77,7 @@ class SlackMethods:
         user_id = event.get("user")
 
         # TODO: add logging information about the current event
+        logging.info("Received event: %s" % event)
         logging.info("%s: %s" % (user_id, msg))
 
         # Check if user is allowed
@@ -88,37 +98,47 @@ class SlackMethods:
         return user_id in self.allowed_users.values()
 
     def handle_greeting_spanish(self, channel_id, thread_id):
-        image_path = os.path.join("assets", "GeppettoMini.png")  
+        image_path = os.path.join("assets", "GeppettoMini.png")
+
+        greeting_message = self.bot_default_responses["greetings"]["spanish"]
+        logging.info("Sending greeting message with file upload: %s" % greeting_message)
 
         self.client.files_upload(
             channels=channel_id,
-            initial_comment=self.bot_default_responses["greetings"]["spanish"],
+            initial_comment=greeting_message,
             file=image_path,
             thread_ts=thread_id,
             filetype="png",
         )
 
+        features_message = self.bot_default_responses["features"]["spanish"]
+        logging.info("Sending features message: %s" % features_message)
+
         self.app.client.chat_postMessage(
             channel=channel_id,
-            text=self.bot_default_responses["features"]["spanish"],
+            text=features_message,
             thread_ts=thread_id,
         )
 
     def handle_greeting_english(self, channel_id, thread_id):
-        image_path = os.path.join("assets", "GeppettoMini.png")  
+        image_path = os.path.join("assets", "GeppettoMini.png")
+
+        greeting_message = self.bot_default_responses["greetings"]["english"]
+        logging.info("Sending greeting message with file upload: %s" % greeting_message)
 
         self.client.files_upload(
             channels=channel_id,
-            initial_comment=self.bot_default_responses["greetings"]["english"],
+            initial_comment=greeting_message,
             file=image_path,
             thread_ts=thread_id,
             filetype="png",
         )
-  
+
+        features_message = self.bot_default_responses["features"]["english"]
+        logging.info("Sending features message: %s" % features_message)
+
         self.app.client.chat_postMessage(
-            channel=channel_id, 
-            text=self.bot_default_responses["features"]["english"], 
-            thread_ts=thread_id
+            channel=channel_id, text=features_message, thread_ts=thread_id
         )
 
     def handle_dalle(self, msg, channel_id, thread_id):
@@ -126,10 +146,13 @@ class SlackMethods:
 
         logging.info("prompt: %s" % (prompt))
 
+        dalle_message = self.bot_default_responses["dalle"]["preparing_image"]
+        logging.info("Sending dalle default message: %s" % dalle_message)
+
         self.client.chat_postMessage(
             channel=channel_id,
             username="Dall-E",
-            text=self.bot_default_responses["dalle"]["preparing_image"],
+            text=dalle_message,
             thread_ts=thread_id,
         )
 
@@ -140,7 +163,7 @@ class SlackMethods:
             channels=channel_id,
             thread_ts=thread_id,
             username="Dall-E",
-            file= os.path.join("assets", "dall-e.png"), 
+            file=os.path.join("assets", "dall-e.png"),
             title="respuesta",
         )
 
@@ -156,11 +179,13 @@ class SlackMethods:
         if response["ok"]:
             timestamp = response["message"]["ts"]
             # TODO: use logger here
-            print(f"Timestamp of the posted message: {timestamp}")
+            logging.info(f"Timestamp of the posted message: {timestamp}")
         else:
-            print("Failed to post the message.")
+            logging.error("Failed to post the message.")
 
         response_from_chatgpt = self.openai_scripts.generate_chatgpt_response(prompt)
+        logging.info("response from chatgpt: %s" % response_from_chatgpt)
+
         thread_history.append({"content": response_from_chatgpt})
         thread_messages[thread_id] = thread_history
 
@@ -173,12 +198,19 @@ class SlackMethods:
             )
         except Exception as e:
             # TODO: use logger here
-            print(f"Error posting message: {e}")
+            logging.info(f"Error posting message: {e}")
 
     def send_permission_denied(self, channel_id, thread_id):
+        permission_denied_message = self.bot_default_responses["user"][
+            "permission_denied"
+        ]
+        logging.info(
+            "Sending permission denied default message: %s" % permission_denied_message
+        )
+
         self.app.client.chat_postMessage(
             channel=channel_id,
-            text=self.bot_default_responses["user"]["permission_denied"],
+            text=permission_denied_message,
             thread_ts=thread_id,
         )
 

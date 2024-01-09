@@ -33,6 +33,7 @@ def load_allowed_users():
     except json.JSONDecodeError:
         logging.error("Error decoding allowed users file.")
 
+
 def load_bot_default_responses():
     """Load bot default responses from a JSON file."""
     global bot_default_responses
@@ -43,6 +44,7 @@ def load_bot_default_responses():
         logging.error("default responses file not found.")
     except json.JSONDecodeError:
         logging.error("Error decoding default responses file.")
+
 
 def main():
     load_allowed_users()
@@ -58,6 +60,7 @@ def main():
     )
 
     SocketModeHandler(Slack_Handler.app, SLACK_APP_TOKEN).start()
+
 
 # Start the Slack app
 if __name__ == "__main__":

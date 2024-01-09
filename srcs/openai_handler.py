@@ -22,6 +22,7 @@ class OpenAIHandler:
                 quality="standard",
                 n=1,
             )
+            logging.info("Generated image URL: %s", response_url.data[0].url)
             return response_url.data[0].url
         except Exception as e:
             logging.error(f"Error generating image: {e}")
