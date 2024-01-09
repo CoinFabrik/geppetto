@@ -19,6 +19,7 @@ class SlackHandler:
     def __init__(
         self,
         allowed_users,
+        bot_default_responses,
         SLACK_BOT_TOKEN,
         SIGNING_SECRET,
         OPENAI_API_KEY,
@@ -35,7 +36,7 @@ class SlackHandler:
 
         # Initialize instances for handling messages and mentions
         self.slack_methods = SlackMethods(
-            self.app, self.client, allowed_users, self.openai_scripts
+            self.app, self.client, allowed_users, bot_default_responses, self.openai_scripts
         )
 
         # Direct Message Event
@@ -51,11 +52,12 @@ class SlackHandler:
 
 class SlackMethods:
     def __init__(
-        self, app: App, client: WebClient, allowed_users, openai_scripts: OpenAIHandler
+        self, app: App, client: WebClient, allowed_users, bot_default_responses, openai_scripts: OpenAIHandler
     ):
         self.app = app
         self.client = client
         self.allowed_users = allowed_users
+        self.bot_default_responses = bot_default_responses
         self.openai_scripts = openai_scripts
 
     def handle_event(self, body):
@@ -86,51 +88,37 @@ class SlackMethods:
         return user_id in self.allowed_users.values()
 
     def handle_greeting_spanish(self, channel_id, thread_id):
-        SALUDO = "Hola! Mi nombre es Geppetto!"
         image_path = os.path.join("assets", "GeppettoMini.png")  
 
         self.client.files_upload(
             channels=channel_id,
-            initial_comment=SALUDO,
+            initial_comment=self.bot_default_responses["greetings"]["spanish"],
             file=image_path,
             thread_ts=thread_id,
             filetype="png",
-        )
-
-        LISTA_FUNCIONALIDADES = (
-            "Escribime lo que necesites contestando el "
-            "hilo iniciado, cada mensaje que envíes generará un hilo de conversación "
-            "nuevo.\nSi necesitás que genere una imagen, "
-            'tu mensaje debe incluir la palabra "dalle".'
         )
 
         self.app.client.chat_postMessage(
             channel=channel_id,
-            text=LISTA_FUNCIONALIDADES,
+            text=self.bot_default_responses["features"]["spanish"],
             thread_ts=thread_id,
         )
 
     def handle_greeting_english(self, channel_id, thread_id):
-        GREET = "Hi! My name is Geppetto!"
         image_path = os.path.join("assets", "GeppettoMini.png")  
 
         self.client.files_upload(
             channels=channel_id,
-            initial_comment=GREET,
+            initial_comment=self.bot_default_responses["greetings"]["english"],
             file=image_path,
             thread_ts=thread_id,
             filetype="png",
         )
-
-        FEATURES_LIST = (
-            "Write to me what you need by replying to the started"
-            "thread, each message you send will generate a new conversation thread.\n"
-            "If you need me to generate an image, your message must include the"
-            'word "dalle".'
-        )
-
+  
         self.app.client.chat_postMessage(
-            channel=channel_id, text=FEATURES_LIST, thread_ts=thread_id
+            channel=channel_id, 
+            text=self.bot_default_responses["features"]["english"], 
+            thread_ts=thread_id
         )
 
     def handle_dalle(self, msg, channel_id, thread_id):
@@ -141,7 +129,7 @@ class SlackMethods:
         self.client.chat_postMessage(
             channel=channel_id,
             username="Dall-E",
-            text="Dall-E está preparando tu imagen",
+            text=self.bot_default_responses["dalle"]["preparing_image"],
             thread_ts=thread_id,
         )
 
@@ -190,8 +178,7 @@ class SlackMethods:
     def send_permission_denied(self, channel_id, thread_id):
         self.app.client.chat_postMessage(
             channel=channel_id,
-            text="El usuario solicitante no pertenece a la lista de\
-                 usuarios permitidos. Solicite permiso para utilizar la aplicación",
+            text=self.bot_default_responses["user"]["permission_denied"],
             thread_ts=thread_id,
         )
 

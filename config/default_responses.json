@@ -1,0 +1,12 @@
+{
+    "greetings": {
+        "spanish": "Hola! Mi nombre es Geppetto!",
+        "english": "Hi! My name is Geppetto!"
+    },
+    "features": {
+        "spanish": "Escribime lo que necesites contestando el hilo iniciado, cada mensaje que envíes generará un hilo de conversación nuevo.\n Si necesitás que genere una imagen, tu mensaje debe incluir la palabra 'dalle'.",
+        "english": "Write to me what you need by replying to the started thread, each message you send will generate a new conversation thread.\n If you need me to generate an image, your message must include the word 'dalle'."
+    },
+    "dalle": {"preparing_image": "Dall-E está preparando tu imagen"},
+    "user": {"permission_denied": "The requesting user does not belong to the list of allowed users. Request permission to use the app"}
+}
