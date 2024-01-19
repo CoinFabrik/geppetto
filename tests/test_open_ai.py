@@ -1,13 +1,7 @@
 import json
-import os
-import sys
 import logging
 import unittest
 from unittest.mock import Mock, patch
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(script_dir)
-sys.path.append(parent_dir)
 
 from geppetto.openai_handler import OpenAIHandler
 

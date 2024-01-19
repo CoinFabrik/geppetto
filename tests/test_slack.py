@@ -1,11 +1,5 @@
-import os
-import sys
 import unittest
 from unittest.mock import patch, ANY
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(script_dir)
-sys.path.append(parent_dir)
 
 from geppetto.utils import load_json
 from geppetto.slack_handler import SlackHandler
