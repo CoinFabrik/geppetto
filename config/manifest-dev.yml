@@ -1,6 +1,6 @@
 display_information:
-  name: Geppetto Test
-  description: Application to test changes in Geppetto
+  name: Geppetto
+  description: Advanced Slack bot integrating OpenAI's ChatGPT and DALL-E for interactive AI conversations and image generation.
   background_color: "#262729"
 features:
   app_home:
@@ -8,7 +8,7 @@ features:
     messages_tab_enabled: true
     messages_tab_read_only_enabled: false
   bot_user:
-    display_name: Gepetto_Test
+    display_name: Geppetto
     always_online: true
 oauth_config:
   scopes:
