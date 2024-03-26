@@ -1,4 +1,5 @@
 {
+  "*":"*",
   "User A": "#MemberIDUserA",
   "User B": "#MemberIDUSerB"
 }
