@@ -39,9 +39,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-   
-
-
     # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
@@ -52,7 +49,6 @@ jobs:
         service_account: 'deploy-geppetto-from-github@geppetto-408614.iam.gserviceaccount.com'
 
    
-
 
     # Alternative option - authentication via credentials json
     # - id: 'auth'
@@ -70,8 +66,6 @@ jobs:
         cluster_name: ${{ env.GKE_CLUSTER }}
         location: ${{ env.GKE_ZONE }}
 
-    
-
     # Build the Docker image
     - name: Build
       run: |-
@@ -80,22 +74,17 @@ jobs:
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           .
-    
-
     # Push the Docker image to Google Artifact Registry
     - name: Publish
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
-    
-
 
     # Set up kustomize
     - name: Set up Kustomize
       run: |-
         curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
         chmod u+x ./kustomize
-    
- 
+
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |-
