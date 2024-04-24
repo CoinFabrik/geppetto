@@ -12,9 +12,9 @@ from .utils import load_json
 load_dotenv(os.path.join("config", ".env"))
 
 
-SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN")
-SLACK_APP_TOKEN = os.getenv("SLACK_APP_TOKEN")
-SIGNING_SECRET = os.getenv("SIGNING_SECRET")
+SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN_STAGING")
+SLACK_APP_TOKEN = os.getenv("SLACK_APP_TOKEN_STAGING")
+SIGNING_SECRET = os.getenv("SIGNING_SECRET_STAGING")
 
 DEFAULT_RESPONSES = load_json("default_responses.json")
 
