@@ -44,8 +44,8 @@ jobs:
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-        project_id: GKE_PROJECT
+        #service_account_key: ${{ secrets.GCP_SA_KEY }}
+        #project_id: GKE_PROJECT
                 
         #token_format: 'access_token'
         #workload_identity_provider: 'projects/99059079106/locations/global/workloadIdentityPools/github/providers/github'
@@ -54,10 +54,10 @@ jobs:
    
 
     # Alternative option - authentication via credentials json
-    # - id: 'auth'
-    #   uses: 'google-github-actions/auth@v0'
-    #   with:
-    #     credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+       - id: 'auth'
+         uses: 'google-github-actions/auth@v0'
+         with:
+         credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
     - name: Docker configuration
       run: |-
