@@ -44,9 +44,12 @@ jobs:
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        token_format: 'access_token'
-        workload_identity_provider: 'projects/99059079106/locations/global/workloadIdentityPools/github/providers/github'
-        service_account: 'deploy-geppetto-from-github@geppetto-408614.iam.gserviceaccount.com'
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: GKE_PROJECT
+                
+        #token_format: 'access_token'
+        #workload_identity_provider: 'projects/99059079106/locations/global/workloadIdentityPools/github/providers/github'
+        #service_account: 'deploy-geppetto-from-github@geppetto-408614.iam.gserviceaccount.com'
 
    
 
