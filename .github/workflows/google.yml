@@ -42,8 +42,8 @@ jobs:
     # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v2'
-      with:
+      #uses: 'google-github-actions/auth@v2'
+      #with:
         #service_account_key: ${{ secrets.GCP_SA_KEY }}
         #project_id: GKE_PROJECT
                 
@@ -54,10 +54,10 @@ jobs:
    
 
     # Alternative option - authentication via credentials json
-       - id: 'auth'
-         uses: 'google-github-actions/auth@v0'
-         with:
-         credentials_json: '${{ secrets.GCP_SA_KEY }}'
+    #- id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+    with:
+      credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
     - name: Docker configuration
       run: |-
