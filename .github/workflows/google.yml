@@ -49,10 +49,14 @@ jobs:
       with:
         credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-    
+        
     - name: Docker configuration
       run: |-
-        echo ${{steps.auth.outputs.access_token}} | docker login -u 104512575240959948458 https://us-central1-docker.pkg.dev
+        echo ${{steps.auth.outputs.access_token}} | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
+
+    - name: Log access token
+      run:  echo "Access Token:${{ steps.auth.outputs.access_token }}"
+
     
     # Get the GKE credentials so we can deploy to the cluster
     - name: Set up GKE credentials
