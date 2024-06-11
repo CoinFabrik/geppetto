@@ -10,6 +10,7 @@ from .llm_api_handler import LLMHandler
 from dotenv import load_dotenv
 from typing import List, Dict
 import os
+import re
 
 load_dotenv(os.path.join("config", ".env"))
 
@@ -19,6 +20,34 @@ CHATGPT_MODEL = os.getenv("CHATGPT_MODEL")
 
 OPENAI_IMG_FUNCTION = "generate_image"
 ROLE_FIELD = "role"
+
+def convert_openai_markdown_to_slack(text):
+    """
+    Converts markdown text from the OpenAI format to Slack's "mrkdwn" format.
+    
+    This function handles:
+    - Bold text conversion from double asterisks (**text**) to single asterisks (*text*).
+    - Italics remain unchanged as they use underscores (_text_) in both formats.
+    - Links are transformed from [text](url) to <url|text>.
+    - Bullet points are converted from hyphens (-) to Slack-friendly bullet points (•).
+    - Code blocks with triple backticks remain unchanged.
+    - Strikethrough conversion from double tildes (~~text~~) to single tildes (~text~).
+    
+    Args:
+        text (str): The markdown text to be converted.
+    
+    Returns:
+        str: The markdown text formatted for Slack.
+    """
+    formatted_text = text.replace("* ", "- ")
+    formatted_text = formatted_text.replace("**", "*")
+    formatted_text = formatted_text.replace("__", "_")
+    formatted_text = formatted_text.replace("- ", "• ")
+    formatted_text = re.sub(r"\[(.*?)\]\((.*?)\)", r"<\2|\1>", formatted_text) 
+    formatted_text += f"\n\n_(Geppetto v0.2.3 Source: OpenAI Model {CHATGPT_MODEL})_"
+    
+    # Code blocks and italics remain unchanged but can be explicitly formatted if necessary
+    return formatted_text
 
 
 class OpenAIHandler(LLMHandler):
@@ -128,9 +157,17 @@ class OpenAIHandler(LLMHandler):
             function_args = json.loads(tool_call.function.arguments)
             function = available_functions[function_name]
             if function_name == OPENAI_IMG_FUNCTION and status_callback:
-                status_callback(*status_callback_args, ":geppetto: I'm preparing the image, please be patient "
+                status_callback(*status_callback_args, "I'm preparing the image, please be patient "
                                          ":lower_left_paintbrush: ...")
             response = function(**function_args)
             return response
         else:
-            return response.choices[0].message.content
+            response = response.choices[0].message.content
+            markdown_response = convert_openai_markdown_to_slack(response)
+            if len(markdown_response) > 4000:
+                # Split the message if it's too long
+                response_parts = self.split_message(markdown_response)
+                return response_parts
+            else:
+                return markdown_response
+        
