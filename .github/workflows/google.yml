@@ -21,7 +21,7 @@ env:
   GAR_LOCATION: us-central1                                                       # Region del Artifactor
   GKE_CLUSTER: autopilot-cluster-1                                                # Cree un nuevo cluster de Kubernetes
   GKE_ZONE: us-central1                                                           # Zona del cluster
-  DEPLOYMENT_NAME: gke-test              # TODO: update to deployment name
+  DEPLOYMENT_NAME: gke-test                  # TODO: update to deployment name
   REPOSITORY: docker-repository                                                   # Cree un nuevo repositorio donde se almacenara la imagen de Docker
   IMAGE: geppetto
 
