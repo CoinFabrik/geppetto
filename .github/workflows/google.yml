@@ -51,9 +51,11 @@ jobs:
 
         
     - name: Docker configuration
-      run: |-
-        echo ${{steps.auth.outputs.access_token}} | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
+      env:
+        ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+      run: echo $ACCESS_TOKEN | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
 
+      
     - name: Log access token
       run:  echo "Access Token:${{ steps.auth.outputs.access_token }}"
 
