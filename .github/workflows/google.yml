@@ -46,17 +46,17 @@ jobs:
       uses: google-github-actions/setup-gcloud@v1
       with:
         version: 'latest'
-        service_account_key: '${{ secrets.GCLOUD_KEY_JSON }}'
+        service_account_key: '${{ secrets.CREDENTIALS_JSON }}'
 
      # Verificar que el archivo de credenciales existe
     - name: Verify credentials file
       run: |
-        echo "${{ secrets.GCLOUD_KEY_JSON }}" > /tmp/gcloud-key.json
+        echo "${{ secrets.CREDENTIALS_JSON }}" > /tmp/gcloud-key.json
         cat /tmp/gcloud-key.json  
     
     # Añadir paso para autenticar gcloud
     - name: Authenticate to gcloud
-      run: gcloud auth activate-service-account --key-file=${{ secrets.GCLOUD_KEY_JSON }}
+      run: gcloud auth activate-service-account --key-file=${{ secrets.CREDENTIALS_JSON }}
 
 
 
@@ -66,7 +66,7 @@ jobs:
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        credentials_json: '${{ secrets.GCLOUD_KEY_JSON }}'
+        credentials_json: '${{ secrets.CREDENTIALS_JSON }}'
 
 
 # Configuración de Docker utilizando el token generado
