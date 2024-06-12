@@ -39,6 +39,21 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    
+
+     
+    - name: Setup gcloud CLI
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        version: 'latest'
+        service_account_key: '${{ secrets.GCLOUD_KEY_JSON }}'
+
+    # Añadir paso para autenticar gcloud
+    - name: Authenticate to gcloud
+      run: gcloud auth activate-service-account --key-file=${{ secrets.GCLOUD_KEY_JSON }}
+
+
+
    
     # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
