@@ -58,8 +58,8 @@ jobs:
       
 
     # Autenticar gcloud
-    - name: Authenticate to gcloud
-      run: gcloud auth activate-service-account --key-file=$HOME/gcloud-key.json
+    #- name: Authenticate to gcloud
+    #  run: gcloud auth activate-service-account --key-file=$HOME/gcloud-key.json
 
     # Autenticar en Google Cloud
     - id: 'auth'
