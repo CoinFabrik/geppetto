@@ -102,5 +102,5 @@ jobs:
 
     - name: Deploy
       run: |
-          ./kustomize edit set image ${ env.GAR_LOCATION }-docker.pkg.dev/${ env.PROJECT_ID }/${ env.REPOSITORY }/${ env.IMAGE }:${ github.sha }
+          ./kustomize edit set image ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}
           ./kustomize build . | kubectl apply -f -
