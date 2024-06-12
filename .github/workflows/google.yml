@@ -48,6 +48,12 @@ jobs:
         version: 'latest'
         service_account_key: '${{ secrets.GCLOUD_KEY_JSON }}'
 
+     # Verificar que el archivo de credenciales existe
+    - name: Verify credentials file
+      run: |
+        echo "${{ secrets.GCLOUD_KEY_JSON }}" > /tmp/gcloud-key.json
+        cat /tmp/gcloud-key.json  
+    
     # Añadir paso para autenticar gcloud
     - name: Authenticate to gcloud
       run: gcloud auth activate-service-account --key-file=${{ secrets.GCLOUD_KEY_JSON }}
