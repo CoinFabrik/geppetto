@@ -47,14 +47,14 @@ jobs:
         service_account_key: '${{ secrets.GCLOUD_KEY_JSON }}'
 
     # Verificar que el archivo de credenciales existe y es válido
-    - name: Write credentials file
-      run: echo "${{ secrets.GCLOUD_KEY_JSON }}" > $HOME/gcloud-key.json
+    #- name: Write credentials file
+    #  run: echo "${{ secrets.GCLOUD_KEY_JSON }}" > $HOME/gcloud-key.json
 
-    - name: Verify credentials file content
-      run: |
-        echo "Contents of gcloud-key.json:"
-        cat $HOME/gcloud-key.json
-      shell: bash
+    #- name: Verify credentials file content
+    #  run: |
+    #    echo "Contents of gcloud-key.json:"
+    #    cat $HOME/gcloud-key.json
+    #  shell: bash
       
 
     # Autenticar gcloud
