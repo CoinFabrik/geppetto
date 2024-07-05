@@ -1,57 +1,40 @@
-name: Build and Deploy to Cloud Run
+name: Build and Test Docker
+
 on:
   push:
-    branches: ["staging"]
+    branches: [ "staging" ]
+
 env:
-  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GAR_LOCATION: us-central1
-  SERVICE_NAME: cloud-run-service
-  REPOSITORY: docker-repository
   IMAGE: geppetto
+
 jobs:
-  setup-build-publish-deploy:
-    name: Setup, Build, Publish, and Deploy
+  build-and-test:
+    name: Setup, Build, and Test
     runs-on: ubuntu-latest
-    environment: production
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      # Configurar gcloud CLI
-      - name: Setup gcloud CLI
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          version: 'latest'
-          service_account_key: '${{ secrets.GCLOUD_KEY_JSON }}'
-      # Autenticar en Google Cloud
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: '${{ secrets.GCLOUD_KEY_JSON }}'
-          token_format: 'access_token'
-      - name: Docker configuration
-        env:
-          ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
-        run: echo $ACCESS_TOKEN | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
-      - name: Log access token
-        run: echo "Access Token:${{ steps.auth.outputs.access_token }}"
-      - name: Build
-        run: |
-          docker build \
-            --tag "us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}" \
-            --build-arg GITHUB_SHA="${{ github.sha }}" \
-            --build-arg GITHUB_REF="${{ github.ref }}" \
-            .
-      - name: Publish
-        run: |
-          docker push "us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}"
-      - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image=us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }} \
-            --region=${{ env.GAR_LOCATION }} \
-            --platform=managed \
-            --allow-unauthenticated
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Build Docker Image
+      run: |
+        docker build \
+          --tag ${{ env.IMAGE }}:${{ github.sha }} \
+          --build-arg GITHUB_SHA="${{ github.sha }}" \
+          --build-arg GITHUB_REF="${{ github.ref }}" \
+          
+
+    - name: Run Docker Container
+      run: |
+        docker run --name ${{ env.IMAGE }}-container -d -p 8080:8080 ${{ env.IMAGE }}:${{ github.sha }}
+
+    - name: Wait for Container Start
+      run: sleep 10
+
+    - name: Test Application
+      run: curl --fail http://localhost:8080
+
+    - name: Stop and Remove Docker Container
+      run: |
+        docker stop ${{ env.IMAGE }}-container
+        docker rm ${{ env.IMAGE }}-container
