@@ -1,5 +1,4 @@
-yaml
-name: Build and Test Docker
+name: Build and Deploy Locally
 
 on:
   push:
@@ -7,57 +6,42 @@ on:
 
 env:
   IMAGE: geppetto
+  SERVICE_NAME: cloud-run-service
 
 jobs:
-  build-and-test:
-    name: Setup, Build, and Test
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
+    environment: production
+
+    permissions:
+      contents: 'read'
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: List Files in the Directory
-      run: ls -la
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
     - name: Build Docker Image
       run: |
         docker build \
-          --tag ${{ env.IMAGE }}:${{ github.sha }} \
+          --tag "${{ env.IMAGE }}:${{ github.sha }}" \
           --build-arg GITHUB_SHA="${{ github.sha }}" \
-          --build-arg GITHUB_REF="${{ github.ref }}"
+          --build-arg GITHUB_REF="${{ github.ref }}" \
+          .
 
-    - name: Run Docker Container
+    - name: Push Docker Image to Docker Hub
       run: |
-        docker run --name ${{ env.IMAGE }}-container -d -p 8080:8080 ${{ env.IMAGE }}:${{ github.sha }}
+        docker tag "${{ env.IMAGE }}:${{ github.sha }}" "${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:${{ github.sha }}"
+        docker push "${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:${{ github.sha }}"
 
-    - name: Wait for Container Start
-      run: sleep 10
-
-    - name: Test Application
-      run: curl --fail http://localhost:8080
-
-    - name: Stop and Remove Docker Container
+    - name: Deploy Docker Container Locally
       run: |
-        docker stop ${{ env.IMAGE }}-container
-        docker rm ${{ env.IMAGE }}-container
+        docker run -d --name ${{ env.SERVICE_NAME }} -p 8080:8080 "${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:${{ github.sha }}"
+        
 
-    # Añadiendo pasos específicos para kustomize y kubectl
-    - name: Setup kustomize
-      run: |
-        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-        sudo mv kustomize /usr/local/bin/
 
-    - name: Verify kustomization presence
-      run: |
-        if [ ! -f ./kustomization.yaml ]; then
-          echo "Missing kustomization.yaml file"
-          exit 1
-        fi
-
-    - name: Set Image in Kustomize
-      run: ./kustomize edit set image us-central1-docker.pkg.dev/PROJECT_ID/docker-repository/${{ env.IMAGE }}:${{ github.sha }}
-
-    - name: Apply Kustomize configuration
-      run: |
-        ./kustomize build . | kubectl apply -f -
+      
+        docker run -d --name ${{ env.SERVICE_NAME }} -p 8080:8080 "${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:${{ github.sha }}"
