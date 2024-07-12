@@ -1,4 +1,5 @@
-name: Build and Test Docker 
+yaml
+name: Build and Test Docker
 
 on:
   push:
@@ -16,13 +17,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - name: List Files in the Directory
+      run: ls -la
+
     - name: Build Docker Image
       run: |
         docker build \
           --tag ${{ env.IMAGE }}:${{ github.sha }} \
           --build-arg GITHUB_SHA="${{ github.sha }}" \
-          --build-arg GITHUB_REF="${{ github.ref }}" \
-          
+          --build-arg GITHUB_REF="${{ github.ref }}"
 
     - name: Run Docker Container
       run: |
@@ -38,3 +41,23 @@ jobs:
       run: |
         docker stop ${{ env.IMAGE }}-container
         docker rm ${{ env.IMAGE }}-container
+
+    # Añadiendo pasos específicos para kustomize y kubectl
+    - name: Setup kustomize
+      run: |
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+        sudo mv kustomize /usr/local/bin/
+
+    - name: Verify kustomization presence
+      run: |
+        if [ ! -f ./kustomization.yaml ]; then
+          echo "Missing kustomization.yaml file"
+          exit 1
+        fi
+
+    - name: Set Image in Kustomize
+      run: ./kustomize edit set image us-central1-docker.pkg.dev/PROJECT_ID/docker-repository/${{ env.IMAGE }}:${{ github.sha }}
+
+    - name: Apply Kustomize configuration
+      run: |
+        ./kustomize build . | kubectl apply -f -
