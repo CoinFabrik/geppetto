@@ -1,5 +1,5 @@
 display_information:
-  name: Geppetto
+  name: Geppetto-stg
   description: Advanced Slack bot integrating OpenAI's ChatGPT and DALL-E for interactive AI conversations and image generation.
   background_color: "#262729"
 features:
@@ -8,7 +8,7 @@ features:
     messages_tab_enabled: true
     messages_tab_read_only_enabled: false
   bot_user:
-    display_name: Geppetto
+    display_name: Geppetto-stg
     always_online: true
 oauth_config:
   scopes:
