@@ -1,0 +1,47 @@
+name: Build and Deploy Locally 
+
+on:
+  push:
+    branches: [ "staging" ]
+
+env:
+  IMAGE: geppetto
+  SERVICE_NAME: cloud-run-service
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    permissions:
+      contents: 'read'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+    - name: Build Docker Image
+      run: |
+        docker build \
+          --tag "${{ env.IMAGE }}:${{ github.sha }}" \
+          --build-arg GITHUB_SHA="${{ github.sha }}" \
+          --build-arg GITHUB_REF="${{ github.ref }}" \
+          .
+
+    - name: Push Docker Image to Docker Hub
+      run: |
+        docker tag "${{ env.IMAGE }}:${{ github.sha }}" "${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:${{ github.sha }}"
+        docker push "${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:${{ github.sha }}"
+
+    - name: Deploy Docker Container Locally
+      run: |
+        docker run -d --name ${{ env.SERVICE_NAME }} -p 8080:8080 "${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:${{ github.sha }}"
+        
+
+
+      
+        docker run -d --name ${{ env.SERVICE_NAME }} -p 8080:8080 "${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:${{ github.sha }}"
