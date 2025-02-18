@@ -104,7 +104,10 @@ With Docker and Docker Compose ready:
 
 - Rename `docker-compose.example.yml` to `docker-compose.yml` and update your config folder location.
 - Adjust configuration values in `config/.env`.
-- Execute `docker compose` build followed by `docker compose up -d`.
+- Execute `docker compose build` followed by `docker compose up -d`.
+
+We published our docker container for download on Dockerhub:
+https://hub.docker.com/r/deeptechia/geppetto
 
 ## 🧪 Testing
 
